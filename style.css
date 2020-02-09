@@ -13,6 +13,7 @@ input, textarea, select
   font-size: 1em;
   font-weight: lighter;
   box-sizing: border-box;
+  max-width: 100ch;
 }
 
 input
@@ -52,7 +53,7 @@ input:focus
 }
 
 ::selection{
-  background: #FF008A;
+  background: #FFF;
 }
 
 #navbar-algorithms, #navbar-generateArray, #navbar-sort
@@ -135,4 +136,25 @@ span.small
   font-weight: lighter;
   font-size: 0.8em;
   letter-spacing: 1px;
+}
+
+span.disabled
+{
+  background: #333;
+  padding: 3px;
+  font-weight: lighter;
+  font-size: 0.8em;
+  letter-spacing: normal;
+}
+
+span.input
+{
+  padding: 1px;
+  background: #DDD;
+  color: #000;
+}
+
+span.input br
+{
+  display: none;
 }
