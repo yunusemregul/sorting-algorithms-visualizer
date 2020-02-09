@@ -1,79 +1,104 @@
-/*$('div[id^="nav"]').children('.button-big').click(function(){
-  if($(this).attr('clicked')=='1')
-  {
-    $(this).parent().children(':not(:first)').fadeOut(200);
-    $(this).attr('clicked', '0')
-  }
-  else {
-    $(this).parent().children(':not(:first)').fadeIn(200);
-    $(this).attr('clicked', '1');
-  }
-})*/
-
-var wd;
+var rectW;
 
 var svg = d3.select('svg');
+
 var array = [1,5,2,3,7,9,10,20,40];
-var itemcount = array.length
+$('#customSize').children('input').val(array.length);
+
+var rectCount = array.length
 var gap = 5;
 updateWidth();
-var totalwd = itemcount*wd+((itemcount-1)*gap);
-var totaltl;
+var totalW = rectCount*rectW+((rectCount-1)*gap);
+var totalT;
 var tl = 10;
-var x = window.innerWidth/2-totalwd/2;
-var y = window.innerHeight/2+(Math.max.apply(null,array)*10)/2;
+var x = window.innerWidth/2-totalW/2;
+var y = window.innerHeight/1.25;
 
 function updateWidth()
 {
-  wd = (window.innerWidth*(200/1920))*(7/itemcount)-((itemcount-1)*gap)/itemcount; // scale box width based on itemcount and screen width
-  wd = Math.max(1,wd); // limit width to be minimum 1
+  rectCount = array.length;
+  gap = 2;
+  rectW = (window.innerWidth*(200/1920))*(7/rectCount)-((rectCount-1)*gap)/rectCount; // scale box width based on rectCount and screen width
+  rectW = Math.max(2,rectW); // limit width to be minimum 1
+
+  totalW = rectCount*rectW+((rectCount-1)*gap);
+  x = window.innerWidth/2-totalW/2;
+}
+
+function updateCustomArrayInput()
+{
+  var text = '['+array.join(', ')+']';
+  const regex = /\d+/gm;
+  text = text.replace(regex,'<span class="input" contenteditable="true">$&</span>');
+  $('#customArray').children('span.disabled').html(text);
+}
+
+function updateArrayWithCustomInput()
+{
+  var text = $('#customArray').children('span.disabled').html();
+  const regex = /\D+/gm;
+  text = text.replace(regex,' ')
+    .split(' ')
+    .map(function(x){
+      return parseInt(x,10);
+    })
+    .filter(function(val){
+      return !Number.isNaN(val);
+    });
+  array = text;
+  $('#size').val(array.length);
+  updateChart();
 }
 
 function updateChart()
 {
-  itemcount = array.length;
-  $('#customArray').children('input').val('['+array.join(', ')+']');
-  $('#customArray').children('input').css('width',$('#customArray').children('input').val().length+1+'ch');
   updateWidth();
+  updateCustomArrayInput();
   var barChart = svg.selectAll('rect').data(array);
   barChart.exit().remove();
   barChart.enter()
     .append('rect')
     .attr('style','fill:#222;')
-    .attr('width',wd)
+    .attr('width',rectW)
     .attr('height',function(d){
       return d*tl;
     })
     .attr('transform',function(d,i){
-      var translate = [x+(wd+gap)*i,y-d*tl];
+      var translate = [x+(rectW+gap)*i,y-d*tl];
       return 'translate('+translate+')';
     });
   barChart.transition()
     .duration(500)
-    .attr('width',wd)
+    .attr('width',rectW)
     .attr('height',function(d){
       return d*tl;
     })
     .attr('transform',function(d,i){
-      var translate = [x+(wd+gap)*i,y-d*tl];
+      var translate = [x+(rectW+gap)*i,y-d*tl];
       return 'translate('+translate+')';
     });
 }
 
-$('#customArray').children('input').keypress(function() {
-  $(this).css('width',$(this).val().length+3+'ch');
-});
+function fillChartWithRandomArray()
+{
+    array = [];
+    var current = 0;
+    while(current<$('#size').val())
+    {
+      array[current] = Math.floor(Math.random() * 50) + 1;
+      current++;
+    }
+    updateChart();
+}
+$('#randomArray').click(fillChartWithRandomArray);
+$('#generateArray').click(fillChartWithRandomArray);
 
-$('#randomArray').click(function(){
-  array = [];
-  var current = 0;
-  while(current<$('#size').val())
-  {
-    array[current] = Math.floor(Math.random() * 50) + 1;
-    current++;
-  }
-  updateChart();
-})
+$(document).on('focusout', '.input', function(){
+  updateArrayWithCustomInput();
+});
+$(document).on('keypress', '.input', function(e){
+    return (e.which != 13) && (e.keyCode >= 48 && e.keyCode <= 57);
+});
 
 $("#rect").mouseenter(function() {
   $(this).css("fill", "teal")
@@ -81,16 +106,4 @@ $("#rect").mouseenter(function() {
   $(this).css("fill","transparent")
 })
 
-var barChart = svg.selectAll('rect')
-  .data(array)
-  .enter()
-  .append('rect')
-  .attr('style','fill:#222;')
-  .attr('width',wd)
-  .attr('height',function(d){
-    return d*tl;
-  })
-  .attr('transform',function(d,i){
-    var translate = [x+(wd+gap)*i,y-d*tl];
-    return 'translate('+translate+')';
-  })
+updateChart();

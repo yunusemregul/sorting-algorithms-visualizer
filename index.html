@@ -17,19 +17,21 @@
   </div>
 
   <div id="navbar-generateArray">
-    <a href="#" class="button-big">Generate Array</a>
-    <a href="#" id="randomArray" class="button-medium">Random</a>
+    <a href="#" id="generateArray" class="button-big">Generate Array</a>
     <div id="customSize">Size: <input type="number" id="size"></div>
-    <div id="customArray">Custom: <input type="text" id="array"></div>
+    <a href="#" id="randomArray" class="button-medium">Random</a>
+    <div id="customArray">Custom:
+      <span class="disabled"></span>
+    </div>
   </div>
 
   <div id="navbar-sort">
-      <a href="#" class="button-big">~ Sort ~</a>
+      <a href="#" id="sort" class="button-big">~ Sort ~</a>
       <div id="customSpeed">
         Speed:
         <span class="small">Slow</span>
         <input type="range" min="0" max="10" value="5" class="slider" id="speed">
-        <span class="small">Faster</span>
+        <span class="small">Fast</span>
       </div>
   </div>
 
