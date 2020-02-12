@@ -12,16 +12,16 @@ let totalW; // Total width of the graph
 generateVariables(); // Generate initial values
 
 // Generates a random number
-function randomNumber()
+function randomNumber(min=1, max=50)
 {
-	return Math.floor(Math.random() * 50) + 1;
+	return Math.floor(Math.random() * max) + min;
 }
 
 // Generates variables like a single rect's width on chart, chart's total width, charts X position and so on..
 function generateVariables()
 {
 	rectCount = array.length; // I like it this way even tho it is a bit stupid
-	gap = 2;
+	gap = 2;	
 	rectW =
 		(window.innerWidth * (200 / 1920)) * (7 / rectCount)
 		- ((rectCount - 1) * gap) / rectCount; // Scale box width to rectCount and screen width
@@ -53,32 +53,22 @@ function parseInputs()
 	const regex = /\D+/gm;
 	text = text.replace(regex, ' ')
 		.split(' ')
-		.map(function (x)
-		{
-			return parseInt(x, 10);
-		})
-		.filter(function (val)
-		{
-			return !Number.isNaN(val);
-		});
+		.map(x => parseInt(x, 10))
+		.filter(val => !Number.isNaN(val));
 	array = text;
 
 	const sizeVal = $('#size').val();
 
 	if (sizeVal != array.length)
 	{
+		let tempArrayLength = array.length;
+		
 		if (sizeVal > array.length)
-		{
-			let tempArrayLength = array.length;
 			for (let i = 1; i <= sizeVal - tempArrayLength; i++)
 				array.push(randomNumber());				
-		}
 		else
-		{
-			let tempArrayLength = array.length;
 			for (let i = 1; i <= tempArrayLength - sizeVal; i++)
 				array.pop();
-		}
 	}
 	updateChart();
 }
@@ -91,39 +81,34 @@ function updateChart()
 
 	let barChart = svg.selectAll('rect').data(array);
 	barChart.exit().remove();
+
+	function transform(d, i)
+	{
+		let translate = [x + (rectW + gap) * i, y - d * tl];
+		return 'translate(' + translate + ')';
+	}
+
 	barChart.enter()
 		.append('rect')
 		.attr('style', 'fill:#222;')
 		.attr('width', rectW)
-		.attr('height', function (d)
-		{
-			return d * tl;
-		})
-		.attr('transform', function (d, i)
-		{
-			let translate = [x + (rectW + gap) * i, y - d * tl];
-			return 'translate(' + translate + ')';
-		});
+		.attr('height', d => d * tl)
+		.attr('transform', transform);
 	barChart.transition()
 		.duration(500)
 		.attr('width', rectW)
-		.attr('height', function (d)
-		{
-			return d * tl;
-		})
-		.attr('transform', function (d, i)
-		{
-			let translate = [x + (rectW + gap) * i, y - d * tl];
-			return 'translate(' + translate + ')';
-		});
+		.attr('height', d => d * tl)
+		.attr('transform', transform);
 }
 
 // Generates a random array with the size input and updates the chart
-function fillChartWithRandomArray()
+function fillChartWithRandomArray(size)
 {
 	array = [];
 	let current = 0;
-	while (current < $('#size').val())
+	size = ((size==null || typeof(size)!='number') ? $('#size').val() : size);
+	
+	while (current < size)
 	{
 		array[current] = randomNumber();
 		current++;
@@ -133,28 +118,17 @@ function fillChartWithRandomArray()
 $('#randomArray').click(fillChartWithRandomArray);
 $('#generateArray').click(fillChartWithRandomArray);
 
-$(document).on('focusout', '.input', function ()
-{
-	parseInputs();
-});
+$(document).on('focusout', '.input', parseInputs);
 $('#size').change(parseInputs);
 
+// Block entering non digit inputs to array input
 $(document).on('keypress', '.input', function (e)
 {
 	return (e.which != 13) && (e.keyCode >= 48 && e.keyCode <= 57);
 });
 
-$(window).resize(function (event)
-{
-	updateChart();
-});
+$(window).resize(updateChart);
 
-$("#rect").mouseenter(function ()
-{
-	$(this).css("fill", "teal")
-}).mouseout(function ()
-{
-	$(this).css("fill", "transparent")
-})
-
+// Initial
+fillChartWithRandomArray(randomNumber(5,15));
 updateChart();
