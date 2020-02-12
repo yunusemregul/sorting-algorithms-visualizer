@@ -1,39 +1,53 @@
-var rectW;
-
 var svg = d3.select('svg');
 
-var array = [1,5,2,3,7,9,10,20,40];
-$('#customSize').children('input').val(array.length);
+var array = []; // Sample array
 
-var rectCount = array.length
-var gap = 5;
-updateWidth();
-var totalW = rectCount*rectW+((rectCount-1)*gap);
-var totalT;
-var tl = 10;
-var x = window.innerWidth/2-totalW/2;
-var y = window.innerHeight/1.25;
+var rectCount; // Total rect count = array.length
+var gap; // Gap between rects
+var x, y; // x, y of graph
+var rectW; // Width of rects
+var tl; // Tall coefficient for rects
+var totalW; // Total width of the graph
 
-function updateWidth()
+generateVariables(); // Generate initial values
+
+// Generates a random number
+function randomNumber()
 {
-  rectCount = array.length;
+  return Math.floor(Math.random() * 50) + 1;
+}
+
+// Generates variables like a single rect's width on chart, chart's total width, charts X position and so on..
+function generateVariables()
+{
+  rectCount = array.length; // I like it this way even tho it is a bit stupid
   gap = 2;
-  rectW = (window.innerWidth*(200/1920))*(7/rectCount)-((rectCount-1)*gap)/rectCount; // scale box width based on rectCount and screen width
-  rectW = Math.max(2,rectW); // limit width to be minimum 1
+  rectW = 
+    (window.innerWidth*(200/1920))*(7/rectCount)
+    -((rectCount-1)*gap)/rectCount; // Scale box width to rectCount and screen width
+  rectW = Math.max(2,rectW); // Limit width with minimum value
 
   totalW = rectCount*rectW+((rectCount-1)*gap);
   x = window.innerWidth/2-totalW/2;
+  y = window.innerHeight/1.25;
+  tl = window.innerHeight/2/Math.max(...array);
 }
 
-function updateCustomArrayInput()
+// Generates the input fields to be equal to the chart
+function generateInputFields()
 {
+  // array field
   var text = '['+array.join(', ')+']';
   const regex = /\d+/gm;
   text = text.replace(regex,'<span class="input" contenteditable="true">$&</span>');
   $('#customArray').children('span.disabled').html(text);
+
+  // size field
+  $('#size').val(array.length); // Set value of size input
 }
 
-function updateArrayWithCustomInput()
+// Parses inputs and updates the chart
+function parseInputs()
 {
   var text = $('#customArray').children('span.disabled').html();
   const regex = /\D+/gm;
@@ -46,14 +60,32 @@ function updateArrayWithCustomInput()
       return !Number.isNaN(val);
     });
   array = text;
-  $('#size').val(array.length);
+
+  var sizeVal = $('#size').val();
+  console.log(sizeVal);
+  console.log(array.length);
+  
+  if(sizeVal!=array.length)
+  {
+    if(sizeVal>array.length)
+   {   for(var i=1; i<sizeVal-array.length; i++)
+       { 
+         array = array.push(randomNumber());
+        }
+    }
+    else
+    {  for(var i=1; i<array.length-sizeVal; i++)
+        array.pop();}
+  }
   updateChart();
 }
 
+// Updates the chart based on the variable 'array'
 function updateChart()
 {
-  updateWidth();
-  updateCustomArrayInput();
+  generateVariables();
+  generateInputFields();
+
   var barChart = svg.selectAll('rect').data(array);
   barChart.exit().remove();
   barChart.enter()
@@ -79,13 +111,14 @@ function updateChart()
     });
 }
 
+// Generates a random array with the size input and updates the chart
 function fillChartWithRandomArray()
 {
     array = [];
     var current = 0;
     while(current<$('#size').val())
     {
-      array[current] = Math.floor(Math.random() * 50) + 1;
+      array[current] = randomNumber();
       current++;
     }
     updateChart();
@@ -94,10 +127,16 @@ $('#randomArray').click(fillChartWithRandomArray);
 $('#generateArray').click(fillChartWithRandomArray);
 
 $(document).on('focusout', '.input', function(){
-  updateArrayWithCustomInput();
+  parseInputs();
 });
+$('#size').change(parseInputs);
+
 $(document).on('keypress', '.input', function(e){
     return (e.which != 13) && (e.keyCode >= 48 && e.keyCode <= 57);
+});
+
+$(window).resize(function(event) {
+  updateChart();
 });
 
 $("#rect").mouseenter(function() {
