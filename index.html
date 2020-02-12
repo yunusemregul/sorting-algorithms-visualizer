@@ -1,41 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
 
 	<link rel="stylesheet" href="style.css">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-  <script src="https://d3js.org/d3.v5.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+	<script src="https://d3js.org/d3.v5.min.js"></script>
 
-  <title>Sorting Algorithms Visualizer</title>
+	<title>Sorting Algorithms Visualizer</title>
 </head>
 <body>
-  <div id="navbar-algorithms">
-    <a href="#" id="algorithms" class="button-big">Algorithms</a>
-  </div>
+	<div id="navbar-algorithms">
+		<a href="#" id="algorithms" class="button-big">Algorithms</a>
+	</div>
 
-  <div id="navbar-generateArray">
-    <a href="#" id="generateArray" class="button-big">Generate Array</a>
-    <div id="customSize">Size: <input type="number" id="size"></div>
-    <a href="#" id="randomArray" class="button-medium">Random</a>
-    <div id="customArray">Custom:
-      <span class="disabled"></span>
-    </div>
-  </div>
+	<div id="navbar-generateArray">
+		<a href="#" id="generateArray" class="button-big">Generate Array</a>
+		<div id="customSize">Size: <input type="number" id="size"></div>
+		<a href="#" id="randomArray" class="button-medium">Random</a>
+		<div id="customArray">Custom:
+			<span class="disabled"></span>
+		</div>
+	</div>
 
-  <div id="navbar-sort">
-      <a href="#" id="sort" class="button-big">~ Sort ~</a>
-      <div id="customSpeed">
-        Speed:
-        <span class="small">Slow</span>
-        <input type="range" min="0" max="10" value="5" class="slider" id="speed">
-        <span class="small">Fast</span>
-      </div>
-  </div>
+	<div id="navbar-sort">
+			<a href="#" id="sort" class="button-big">~ Sort ~</a>
+			<div id="customSpeed">
+				Speed:
+				<span class="small">Slow</span>
+				<input type="range" min="0" max="10" value="5" class="slider" id="speed">
+				<span class="small">Fast</span>
+			</div>
+	</div>
 
-  <svg id="canvas"></svg>
+	<svg id="canvas"></svg>
 </body>
 <script src="index.js"></script>
 </html>
