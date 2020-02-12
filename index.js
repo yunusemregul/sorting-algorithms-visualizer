@@ -1,13 +1,13 @@
-var svg = d3.select('svg');
+let svg = d3.select('svg');
 
-var array = []; // Sample array
+let array = []; // Sample array
 
-var rectCount; // Total rect count = array.length
-var gap; // Gap between rects
-var x, y; // x, y of graph
-var rectW; // Width of rects
-var tl; // Tall coefficient for rects
-var totalW; // Total width of the graph
+let rectCount; // Total rect count = array.length
+let gap; // Gap between rects
+let x, y; // x, y of graph
+let rectW; // Width of rects
+let tl; // Tall coefficient for rects
+let totalW; // Total width of the graph
 
 generateVariables(); // Generate initial values
 
@@ -37,7 +37,7 @@ function generateVariables()
 function generateInputFields()
 {
 	// array field
-	var text = '[' + array.join(', ') + ']';
+	let text = '[' + array.join(', ') + ']';
 	const regex = /\d+/gm;
 	text = text.replace(regex, '<span class="input" contenteditable="true">$&</span>');
 	$('#customArray').children('span.disabled').html(text);
@@ -49,7 +49,7 @@ function generateInputFields()
 // Parses inputs and updates the chart
 function parseInputs()
 {
-	var text = $('#customArray').children('span.disabled').html();
+	let text = $('#customArray').children('span.disabled').html();
 	const regex = /\D+/gm;
 	text = text.replace(regex, ' ')
 		.split(' ')
@@ -63,22 +63,20 @@ function parseInputs()
 		});
 	array = text;
 
-	var sizeVal = $('#size').val();
-	console.log(sizeVal);
-	console.log(array.length);
+	const sizeVal = $('#size').val();
 
 	if (sizeVal != array.length)
 	{
 		if (sizeVal > array.length)
 		{
-			for (var i = 1; i < sizeVal - array.length; i++)
-			{
-				array = array.push(randomNumber());
-			}
+			let tempArrayLength = array.length;
+			for (let i = 1; i <= sizeVal - tempArrayLength; i++)
+				array.push(randomNumber());				
 		}
 		else
 		{
-			for (var i = 1; i < array.length - sizeVal; i++)
+			let tempArrayLength = array.length;
+			for (let i = 1; i <= tempArrayLength - sizeVal; i++)
 				array.pop();
 		}
 	}
@@ -91,7 +89,7 @@ function updateChart()
 	generateVariables();
 	generateInputFields();
 
-	var barChart = svg.selectAll('rect').data(array);
+	let barChart = svg.selectAll('rect').data(array);
 	barChart.exit().remove();
 	barChart.enter()
 		.append('rect')
@@ -103,7 +101,7 @@ function updateChart()
 		})
 		.attr('transform', function (d, i)
 		{
-			var translate = [x + (rectW + gap) * i, y - d * tl];
+			let translate = [x + (rectW + gap) * i, y - d * tl];
 			return 'translate(' + translate + ')';
 		});
 	barChart.transition()
@@ -115,7 +113,7 @@ function updateChart()
 		})
 		.attr('transform', function (d, i)
 		{
-			var translate = [x + (rectW + gap) * i, y - d * tl];
+			let translate = [x + (rectW + gap) * i, y - d * tl];
 			return 'translate(' + translate + ')';
 		});
 }
@@ -124,7 +122,7 @@ function updateChart()
 function fillChartWithRandomArray()
 {
 	array = [];
-	var current = 0;
+	let current = 0;
 	while (current < $('#size').val())
 	{
 		array[current] = randomNumber();
