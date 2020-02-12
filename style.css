@@ -58,11 +58,8 @@ input:focus
 
 #navbar-algorithms, #navbar-generateArray, #navbar-sort
 {
-  margin: 5px;
-  display: flex;
-  /*border: 2px solid #222;
-  background: #292929;
-  width: 580px;*/
+  margin-top: 5px;
+  margin-left: 5px;
 }
 
 #navbar-algorithms a.button-big:hover
@@ -88,7 +85,7 @@ input:focus
   font-size: 1.6em;
   font-weight: bold;
   letter-spacing: 2px;
-  display: table-cell;
+  display: inline-block;
   padding: 5px 8px 5px 8px;
   position: relative;
   background-color: #222;
@@ -102,11 +99,13 @@ input:focus
 .button-medium, #customArray, #customSpeed, #customSize
 {
   font-size: 1.2em;
+  max-width: 200ch;
+  max-height: 1.2em;
   width: auto;
   margin-top: auto;
   margin-bottom: auto;
-  margin-left: 5px;
   transition-property: none;
+  overflow: hidden;
 }
 
 #customSize > input
@@ -145,6 +144,7 @@ span.disabled
   font-weight: lighter;
   font-size: 0.8em;
   letter-spacing: normal;
+  overflow: hidden;
 }
 
 span.input
