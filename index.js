@@ -1,6 +1,8 @@
+import * as selectionsort from '/algorithms/selectionsort.js';
+
 let svg = d3.select('svg');
 
-let array = []; // Sample array
+let array = []; // Main array
 
 let rectCount; // Total rect count = array.length
 let gap; // Gap between rects
@@ -124,7 +126,7 @@ $('#size').change(parseInputs);
 // Block entering non digit inputs to array input
 $(document).on('keypress', '.input', function (e)
 {
-	return (e.which != 13) && (e.keyCode >= 48 && e.keyCode <= 57);
+	return (e.keyCode >= 48 && e.keyCode <= 57);
 });
 
 $(window).resize(updateChart);
