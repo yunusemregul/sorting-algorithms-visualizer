@@ -1,4 +1,4 @@
-import * as selectionsort from '/algorithms/selectionsort.js';
+import * as selectionsort from './algorithms/selectionsort.js';
 
 let svg = d3.select('svg');
 
