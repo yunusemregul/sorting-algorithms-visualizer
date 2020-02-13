@@ -7,7 +7,7 @@ function compare(a, b, actions)
 {
     actions.push({
         action: 'compare', 
-        indexes: [a, b]
+        arguments: [a, b]
     })
 
     return actions;
@@ -19,7 +19,10 @@ function swap(arr, a, b, actions)
     arr[a] = arr[b];
     arr[b] = temp;
 
-    actions.push({action: 'swap', indexes: [a, b]});
+    actions.push({
+        action: 'swap', 
+        arguments: [a, b]
+    });
 
     return [arr, actions]; // return the updated array and action info
 }
