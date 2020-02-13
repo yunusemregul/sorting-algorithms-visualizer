@@ -2,7 +2,7 @@ import * as selectionsort from './algorithms/selectionsort.js';
 
 let svg = d3.select('svg');
 
-let array = []; // Main array
+let array = []; // Main array that will hold numbers
 
 let rectCount; // Total rect count = array.length
 let gap; // Gap between rects
@@ -75,14 +75,17 @@ function parseInputs()
 	updateChart();
 }
 
-// Updates the chart based on the variable 'array'
+// Updates the chart with the array data
 function updateChart()
 {
 	generateVariables();
 	generateInputFields();
 
-	let barChart = svg.selectAll('rect').data(array);
-	barChart.exit().remove();
+	let parents = svg.selectAll('g').data(array);
+	parents.exit().remove();
+
+	let enteredParents = parents.enter()
+		.append('g')
 
 	function barchartTransform(d, i)
 	{
@@ -90,39 +93,39 @@ function updateChart()
 		return 'translate(' + translate + ')';
 	}
 
-	barChart.enter()
-		.append('rect')
-		.attr('style', 'fill:#222;')
-		.attr('width', rectW)
-		.attr('height', d => d * tl)
-		.attr('transform', barchartTransform);
-	barChart.transition()
+	function textsTransform(d, i)
+	{
+		let translate = [x + (rectW + gap) * i + rectW/2 - this.getBBox().width/2, y+16];
+		return 'translate(' + translate + ')';		
+	}	
+
+	enteredParents.append('rect')
+	.attr('style', 'fill:#222;')
+	.attr('width', rectW)
+	.attr('height', d => d * tl)
+	.attr('transform', barchartTransform);
+
+	enteredParents.append('text')
+	.text(d => d)
+	.attr('style', 'fill: #ddd')	
+	.attr('transform', textsTransform);
+
+	let rects = svg.selectAll('rect').data(array);
+	let texts = svg.selectAll('text').data(array);
+
+	rects.transition()
 		.duration(500)
 		.attr('width', rectW)
 		.attr('height', d => d * tl)
 		.attr('transform', barchartTransform);
 
-	let texts = svg.selectAll('text').data(rectW>16 ? array : []); // remove texts if there is no space for them
-	texts.exit().remove();
-
-	function textsTransform(d, i)
-	{
-		let translate = [x + (rectW + gap) * i + rectW/2 - this.getBBox().width/2, y+16];
-		return 'translate(' + translate + ')';		
-	}
-
-	texts.enter()
-		.append('text')
-		.text(d => d)
-		.attr('style', 'fill: #ddd')	
-		.attr('transform', textsTransform);
 	texts.transition()
 		.duration(500)
 		.text(d => d)
 		.attr('transform', textsTransform);
 }
 
-// Generates a random array with the size input and updates the chart
+// Generates a random array with the size parameter and updates the chart
 function fillChartWithRandomArray(size)
 {
 	array = [];
@@ -151,5 +154,6 @@ $(document).on('keypress', '.input', function (e)
 $(window).resize(updateChart);
 
 // Initial
-fillChartWithRandomArray(randomNumber(5,15));
+//fillChartWithRandomArray(randomNumber(5,15));
+fillChartWithRandomArray(5);
 updateChart();
