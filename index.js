@@ -84,7 +84,7 @@ function updateChart()
 	let barChart = svg.selectAll('rect').data(array);
 	barChart.exit().remove();
 
-	function transform(d, i)
+	function barchartTransform(d, i)
 	{
 		let translate = [x + (rectW + gap) * i, y - d * tl];
 		return 'translate(' + translate + ')';
@@ -95,12 +95,31 @@ function updateChart()
 		.attr('style', 'fill:#222;')
 		.attr('width', rectW)
 		.attr('height', d => d * tl)
-		.attr('transform', transform);
+		.attr('transform', barchartTransform);
 	barChart.transition()
 		.duration(500)
 		.attr('width', rectW)
 		.attr('height', d => d * tl)
-		.attr('transform', transform);
+		.attr('transform', barchartTransform);
+
+	let texts = svg.selectAll('text').data(rectW>16 ? array : []); // remove texts if there is no space for them
+	texts.exit().remove();
+
+	function textsTransform(d, i)
+	{
+		let translate = [x + (rectW + gap) * i + rectW/2 - this.getBBox().width/2, y+16];
+		return 'translate(' + translate + ')';		
+	}
+
+	texts.enter()
+		.append('text')
+		.text(d => d)
+		.attr('style', 'fill: #ddd')	
+		.attr('transform', textsTransform);
+	texts.transition()
+		.duration(500)
+		.text(d => d)
+		.attr('transform', textsTransform);
 }
 
 // Generates a random array with the size input and updates the chart
