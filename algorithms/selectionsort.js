@@ -4,7 +4,8 @@ let name = 'Selection Sort';
 
 function sort(arr)
 {
-	const n = arr.length;
+	let copy = arr.slice();
+	const n = copy.length;
 	let actions = [];
 
 	for (let i = 0; i < n; i++)
@@ -13,14 +14,14 @@ function sort(arr)
 		for (let j = i + 1; j < n; j++)
 		{
 			actions = utils.compare(min,j,actions);
-			if (arr[min] > arr[j])
+			if (copy[min] > copy[j])
 			{
 				min = j;
 			}
 		}
 		if (min !== i)
 		{
-			[arr, actions] = utils.swap(arr, i, min, actions);
+			actions = utils.swap(copy, i, min, actions);
 		}
 	}
 

@@ -1,8 +1,33 @@
 import * as selectionsort from './algorithms/selectionsort.js';
+import * as bubblesort from './algorithms/bubblesort.js';
+import * as utils from './utils.js';
+
+let actions; // Variable that will hold actions returned from selected sorting algorithm
+let algorithms = [];
+let selectedAlgorithm;
+function addAlgorithm(alg)
+{
+	algorithms[alg.name] = alg.sort;
+	$('#navbar-algorithms')
+		.append('<a href="#" class="button-medium">'+alg.name+'</a>');
+	
+	$('#navbar-algorithms').children('.button-medium')
+		.click(function()
+		{
+			selectedAlgorithm = algorithms[this.text];
+		});
+}
+
+addAlgorithm(selectionsort);
+addAlgorithm(bubblesort);
 
 let svg = d3.select('svg');
 
 let array = []; // Main array that will hold numbers
+let colors = {
+	compare: '#8E44AD',
+	swap: '#27AE60'
+};
 
 let rectCount; // Total rect count = array.length
 let gap; // Gap between rects
@@ -11,12 +36,20 @@ let rectW; // Width of rects
 let tl; // Tall coefficient for rects
 let totalW; // Total width of the graph
 
+let timeTaken = 100; // Time taken by each action (swapping, comparing) in millis
+
 generateVariables(); // Generate initial values
 
 // Generates a random number
 function randomNumber(min=1, max=50)
 {
 	return Math.floor(Math.random() * max) + min;
+}
+
+// https://stackoverflow.com/a/5650012/12734824
+function map_range(value, low1, high1, low2, high2) 
+{
+    return low2 + (high2 - low2) * (value - low1) / (high1 - low1);
 }
 
 // Generates variables like a single rect's width on chart, chart's total width, charts X position and so on..
@@ -48,8 +81,7 @@ function generateInputFields()
 	$('#size').val(array.length); // Set value of size input
 }
 
-// Parses inputs and updates the chart
-function parseInputs()
+function parseArrayInput()
 {
 	let text = $('#customArray').children('span.disabled').html();
 	const regex = /\D+/gm;
@@ -59,6 +91,11 @@ function parseInputs()
 		.filter(val => !Number.isNaN(val));
 	array = text;
 
+	updateChart();
+}
+
+function parseSizeInput()
+{
 	const sizeVal = $('#size').val();
 
 	if (sizeVal != array.length)
@@ -71,8 +108,15 @@ function parseInputs()
 		else
 			for (let i = 1; i <= tempArrayLength - sizeVal; i++)
 				array.pop();
-	}
-	updateChart();
+
+		updateChart();
+	}		
+}
+
+function parseSpeedInput()
+{
+	let speed = parseInt($('#speed').val());
+	timeTaken = map_range(speed, 1, 10, 1000, 50)
 }
 
 // Updates the chart with the array data
@@ -86,6 +130,7 @@ function updateChart()
 
 	let enteredParents = parents.enter()
 		.append('g')
+		.attr('id',(d,i)=>'g'+i);
 
 	function barchartTransform(d, i)
 	{
@@ -100,27 +145,27 @@ function updateChart()
 	}	
 
 	enteredParents.append('rect')
-	.attr('style', 'fill:#222;')
+	.attr('fill','#222')
 	.attr('width', rectW)
 	.attr('height', d => d * tl)
 	.attr('transform', barchartTransform);
 
 	enteredParents.append('text')
 	.text(d => d)
-	.attr('style', 'fill: #ddd')	
+	.attr('fill','#ddd')	
 	.attr('transform', textsTransform);
-
+	
 	let rects = svg.selectAll('rect').data(array);
 	let texts = svg.selectAll('text').data(array);
 
 	rects.transition()
-		.duration(500)
+		.duration(timeTaken)
 		.attr('width', rectW)
 		.attr('height', d => d * tl)
 		.attr('transform', barchartTransform);
 
 	texts.transition()
-		.duration(500)
+		.duration(timeTaken)
 		.text(d => d)
 		.attr('transform', textsTransform);
 }
@@ -142,8 +187,58 @@ function fillChartWithRandomArray(size)
 $('#randomArray').click(fillChartWithRandomArray);
 $('#generateArray').click(fillChartWithRandomArray);
 
-$(document).on('focusout', '.input', parseInputs);
-$('#size').change(parseInputs);
+function handleActions()
+{
+	updateChart();
+	
+	if(actions.length==0)
+		return;
+
+	let action = actions[0];
+
+	if(action.arguments)
+	{
+		var a = d3.select('#g'+action.arguments[0]).select('rect');
+		var aColor = a.attr('fill');
+		var b = d3.select('#g'+action.arguments[1]).select('rect');
+		var bColor = b.attr('fill');
+	}
+	
+	if(action.operation=='compare')
+	{
+		a.attr('fill',colors.compare);
+		b.attr('fill',colors.compare);
+	}
+	if(action.operation=='swap')
+	{
+		/*
+			TODO:
+				Add move animation
+		*/
+		utils.swap(array, action.arguments[0], action.arguments[1]);
+		
+		a.attr('fill',colors.swap);
+		b.attr('fill',colors.swap);
+	}
+
+	setTimeout(function(){
+		a.attr('fill',aColor);
+		b.attr('fill',bColor);
+	}, timeTaken);
+
+	actions.shift();
+	setTimeout(handleActions, timeTaken);
+}
+
+$('#sort').click(function()
+{
+	actions = selectedAlgorithm(array);
+	handleActions();
+});
+
+$(document).on('focusout', '.input', parseArrayInput);
+$('#size').change(parseSizeInput);
+$('#speed').change(parseSpeedInput);
 
 // Block entering non digit inputs to array input
 $(document).on('keypress', '.input', function (e)
@@ -154,6 +249,5 @@ $(document).on('keypress', '.input', function (e)
 $(window).resize(updateChart);
 
 // Initial
-//fillChartWithRandomArray(randomNumber(5,15));
-fillChartWithRandomArray(5);
+fillChartWithRandomArray(randomNumber(5,15));
 updateChart();
