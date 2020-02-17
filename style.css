@@ -119,6 +119,12 @@ input:focus
   background: #FFF;
 }
 
+.button-hovered
+{
+  color: #000;
+  background: #00FF8A;  
+}
+
 #canvas
 {
   position: fixed;
@@ -149,9 +155,7 @@ span.disabled
 
 span.input
 {
-  padding: 1px;
-  background: #DDD;
-  color: #000;
+  text-decoration: underline;
 }
 
 span.input br

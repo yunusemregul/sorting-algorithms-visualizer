@@ -1,25 +1,32 @@
 import * as selectionsort from './algorithms/selectionsort.js';
 import * as bubblesort from './algorithms/bubblesort.js';
-import * as utils from './utils.js';
+import * as actionutils from './actions.js';
+import {randomNumber, mapRange} from './utils.js';
 
 let actions; // Variable that will hold actions returned from selected sorting algorithm
 let algorithms = [];
 let selectedAlgorithm;
+
 function addAlgorithm(alg)
 {
 	algorithms[alg.name] = alg.sort;
 	$('#navbar-algorithms')
-		.append('<a href="#" class="button-medium">'+alg.name+'</a>');
-	
-	$('#navbar-algorithms').children('.button-medium')
-		.click(function()
-		{
-			selectedAlgorithm = algorithms[this.text];
-		});
+		.append('<a href="#" class="button-medium">'+alg.name+'</a> ');
 }
 
 addAlgorithm(selectionsort);
 addAlgorithm(bubblesort);
+
+$('#navbar-algorithms').children('.button-medium')
+	.click(function()
+	{
+		if(isSorting)
+			return;
+		
+		selectedAlgorithm = algorithms[this.text];
+		$('#navbar-algorithms').children('.button-medium').removeClass('button-hovered');
+		$(this).addClass('button-hovered');
+	});
 
 let svg = d3.select('svg');
 
@@ -37,20 +44,9 @@ let tl; // Tall coefficient for rects
 let totalW; // Total width of the graph
 
 let timeTaken = 100; // Time taken by each action (swapping, comparing) in millis
+let isSorting = false;
 
 generateVariables(); // Generate initial values
-
-// Generates a random number
-function randomNumber(min=1, max=50)
-{
-	return Math.floor(Math.random() * max) + min;
-}
-
-// https://stackoverflow.com/a/5650012/12734824
-function map_range(value, low1, high1, low2, high2) 
-{
-    return low2 + (high2 - low2) * (value - low1) / (high1 - low1);
-}
 
 // Generates variables like a single rect's width on chart, chart's total width, charts X position and so on..
 function generateVariables()
@@ -74,7 +70,7 @@ function generateInputFields()
 	// array field
 	let text = '[' + array.join(', ') + ']';
 	const regex = /\d+/gm;
-	text = text.replace(regex, '<span class="input" contenteditable="true">$&</span>');
+	text = text.replace(regex, '<span'+(isSorting ? '': ' class="input" contentEditable="true"')+'>$&</span>');
 	$('#customArray').children('span.disabled').html(text);
 
 	// size field
@@ -83,6 +79,9 @@ function generateInputFields()
 
 function parseArrayInput()
 {
+	if(isSorting)
+		return;
+
 	let text = $('#customArray').children('span.disabled').html();
 	const regex = /\D+/gm;
 	text = text.replace(regex, ' ')
@@ -96,6 +95,9 @@ function parseArrayInput()
 
 function parseSizeInput()
 {
+	if(isSorting)
+		return;
+
 	const sizeVal = $('#size').val();
 
 	if (sizeVal != array.length)
@@ -116,7 +118,7 @@ function parseSizeInput()
 function parseSpeedInput()
 {
 	let speed = parseInt($('#speed').val());
-	timeTaken = map_range(speed, 1, 10, 1000, 50)
+	timeTaken = mapRange(speed, 1, 10, 500, 50);
 }
 
 // Updates the chart with the array data
@@ -167,12 +169,17 @@ function updateChart()
 	texts.transition()
 		.duration(timeTaken)
 		.text(d => d)
-		.attr('transform', textsTransform);
+		.attr('transform', textsTransform)
+		.attr('display', () => rectW<12 ? 'none' : '');
+
 }
 
 // Generates a random array with the size parameter and updates the chart
 function fillChartWithRandomArray(size)
 {
+	if(isSorting)
+		return;
+
 	array = [];
 	let current = 0;
 	size = ((size==null || typeof(size)!='number') ? $('#size').val() : size);
@@ -191,8 +198,12 @@ function handleActions()
 {
 	updateChart();
 	
+	// no action left
 	if(actions.length==0)
+	{
+		stopSort();
 		return;
+	}
 
 	let action = actions[0];
 
@@ -215,7 +226,7 @@ function handleActions()
 			TODO:
 				Add move animation
 		*/
-		utils.swap(array, action.arguments[0], action.arguments[1]);
+		actionutils.swap(array, action.arguments[0], action.arguments[1]);
 		
 		a.attr('fill',colors.swap);
 		b.attr('fill',colors.swap);
@@ -230,10 +241,33 @@ function handleActions()
 	setTimeout(handleActions, timeTaken);
 }
 
-$('#sort').click(function()
+function stopSort()
 {
+	isSorting = false;
+	$('#sort').text('~ Sort ~');
+	$('span.disabled').children().attr('contentEditable',true);
+	$('span.disabled').children().addClass('input');
+
+	actions = [];
+}
+
+function startSort()
+{
+	isSorting = true;
+	$('#sort').text('Stop');
+	$('span.disabled').children().attr('contentEditable',false);
+	$('span.disabled').children().removeClass('input');	
+
 	actions = selectedAlgorithm(array);
 	handleActions();
+}
+
+$('#sort').click(function()
+{
+	if(isSorting)
+		stopSort();
+	else
+		startSort();
 });
 
 $(document).on('focusout', '.input', parseArrayInput);
@@ -243,11 +277,18 @@ $('#speed').change(parseSpeedInput);
 // Block entering non digit inputs to array input
 $(document).on('keypress', '.input', function (e)
 {
+	if(e.keyCode==13)
+		parseArrayInput();
+
 	return (e.keyCode >= 48 && e.keyCode <= 57);
 });
 
 $(window).resize(updateChart);
 
 // Initial
-fillChartWithRandomArray(randomNumber(5,15));
-updateChart();
+$(function()
+{
+	fillChartWithRandomArray(randomNumber(5,15));
+	updateChart();
+	$('#navbar-algorithms').children('.button-medium').first().click();	
+});
