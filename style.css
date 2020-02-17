@@ -102,8 +102,8 @@ input:focus
   max-width: 200ch;
   max-height: 1.2em;
   width: auto;
-  margin-top: auto;
-  margin-bottom: auto;
+  margin-top: 3px;
+  margin-bottom: 3px;
   transition-property: none;
   overflow: hidden;
 }
