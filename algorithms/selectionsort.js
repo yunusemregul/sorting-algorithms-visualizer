@@ -1,4 +1,4 @@
-import * as utils from "../utils.js";
+import * as actionutils from "../actions.js";
 
 let name = 'Selection Sort';
 
@@ -13,7 +13,7 @@ function sort(arr)
 		let min = i;
 		for (let j = i + 1; j < n; j++)
 		{
-			actions = utils.compare(min,j,actions);
+			actions = actionutils.compare(min,j,actions);
 			if (copy[min] > copy[j])
 			{
 				min = j;
@@ -21,7 +21,7 @@ function sort(arr)
 		}
 		if (min !== i)
 		{
-			actions = utils.swap(copy, i, min, actions);
+			actions = actionutils.swap(copy, i, min, actions);
 		}
 	}
 

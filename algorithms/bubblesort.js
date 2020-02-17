@@ -1,4 +1,4 @@
-import * as utils from "../utils.js";
+import * as actionutils from "../actions.js";
 
 let name = 'Bubble Sort';
 
@@ -10,19 +10,21 @@ function sort(arr)
 
 	let actions = [];
 
-    do {
+    do 
+    {
         swapped = false;
         for (let i=0; i < n; i++)
         {
-            actions = utils.compare(i,i+1,actions);
+            actions = actionutils.compare(i,i+1,actions);
             if (copy[i] > copy[i+1])
             {
-                actions = utils.swap(copy, i, i+1, actions);
+                actions = actionutils.swap(copy, i, i+1, actions);
                 swapped = true;
             }
         }
         n--;
-    } while (swapped);
+    } 
+    while (swapped);
 
 	return actions;
 }
