@@ -1,30 +1,13 @@
-// actions determine what will happen on chart visually
-
-function compare(a, b, actions)
+// Generates a random number
+function randomNumber(min=1, max=50)
 {
-    actions.push({
-        operation: 'compare', 
-        arguments: [a, b]
-    })
-
-    return actions;
+	return Math.floor(Math.random() * max) + min;
 }
 
-function swap(arr, a, b, actions)
+// https://stackoverflow.com/a/5650012/12734824
+function map_range(value, low1, high1, low2, high2) 
 {
-    const temp = arr[a];
-    arr[a] = arr[b];
-    arr[b] = temp;
-
-    if(actions)
-    {
-        actions.push({
-            operation: 'swap', 
-            arguments: [a, b]
-        });
-
-        return actions; // return the updated array and action info
-    }
+    return low2 + (high2 - low2) * (value - low1) / (high1 - low1);
 }
 
-export {compare, swap};
+export {randomNumber, map_range};
